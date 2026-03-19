@@ -30,6 +30,11 @@ type PredictionData = {
   fastPrice: number
   fairPrice: number
   highPrice: number
+  explanation: {
+    summary: string
+    detail: string
+    tip: string
+  }
 }
 
 const initialVehicleData: VehicleFormData = {
@@ -140,10 +145,10 @@ export default function Home() {
   }
 
   return (
-    <div className="mx-auto max-w-[430px] min-h-screen bg-background shadow-2xl relative">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[30px] bg-foreground rounded-b-2xl z-50 pointer-events-none" />
+    <div className="mx-auto max-w-[430px] min-h-screen bg-background shadow-2xl relative mt-3">
+      
 
-      <div className="pt-[30px]">
+      <div className="pt-6">
         {currentScreen === 0 && (
           <WelcomeScreen onStart={() => {
             setEditStep(null)

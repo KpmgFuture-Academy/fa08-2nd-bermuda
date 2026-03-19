@@ -38,9 +38,12 @@ interface PriceResultScreenProps {
     fastPrice: number
     fairPrice: number
     highPrice: number
+    explanation: {
+      summary: string
+      detail: string
+      tip: string
+    }
   } | null
-  explanation?: AIExplanation | null
-  isExplanationLoading?: boolean
 }
 
 function normalizePrice(value: number) {
@@ -147,6 +150,34 @@ function getPricingComment(type: "fast" | "fair" | "high", vehicleData: any) {
     : "여유 있게 올려두고 최고가를 노려보는 전략"
 }
 
+function getExplanationSummary(explanation?: string) {
+  if (!explanation) return "입력한 차량 조건을 바탕으로 가격을 계산했어요."
+
+  const cleaned = explanation.replace(/\n/g, " ").trim()
+  const sentences = cleaned
+    .split(/[.!?]\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+
+  return sentences[0] || "입력한 차량 조건을 바탕으로 가격을 계산했어요."
+}
+
+function getExplanationDetail(explanation?: string) {
+  if (!explanation) {
+    return "연식, 주행거리, 사고 여부, 옵션 수준을 함께 반영한 결과예요."
+  }
+
+  const cleaned = explanation.replace(/\n/g, " ").trim()
+  const sentences = cleaned
+    .split(/[.!?]\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+
+  if (sentences.length <= 1) return cleaned
+
+  return sentences.slice(1).join(" · ")
+}
+
 export function PriceResultScreen({
   onBack,
   onRegister,
@@ -160,6 +191,15 @@ export function PriceResultScreen({
   const accidentText = getAccidentText(vehicleData)
   const optionCount = getOptionCount(vehicleData)
 
+  const explanationSummary =
+    prediction?.explanation?.summary || "입력한 차량 조건을 바탕으로 가격을 계산했어요."
+
+  const explanationDetail =
+    prediction?.explanation?.detail || "연식, 주행거리, 사고 여부, 옵션 수준을 함께 반영한 결과예요."
+
+  const explanationTip =
+    prediction?.explanation?.tip || "빠르게 판매하려면 빠른 판매가에 가깝게, 여유가 있다면 적정 판매가 또는 최대 수익가 전략을 고려해보세요."
+  
   const strategies = [
     {
       key: "fast",
@@ -361,10 +401,34 @@ export function PriceResultScreen({
             <h2 className="text-xl font-bold text-foreground">가격 해석</h2>
           </div>
 
-          <div className="space-y-3">
-            <div className="rounded-2xl bg-orange-50/60 border border-orange-100 p-4">
+          <div className="space-y-4">
+            <div className="rounded-2xl bg-orange-50/70 border border-orange-100 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <p className="text-sm font-semibold text-foreground">AI 한 줄 요약</p>
+              </div>
               <p className="text-sm leading-relaxed text-foreground">
-                {getInsightText(vehicleData, prediction)}
+                {explanationSummary}
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-background border border-border p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <p className="text-sm font-semibold text-foreground">AI가 본 가격 설명</p>
+              </div>
+              <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+                {explanationDetail}
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-primary/5 border border-primary/10 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <CircleDollarSign className="w-4 h-4 text-primary" />
+                <p className="text-sm font-semibold text-foreground">판매 전략 팁</p>
+              </div>
+              <p className="text-sm leading-relaxed text-foreground">
+                {explanationTip}
               </p>
             </div>
 
