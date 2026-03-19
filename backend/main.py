@@ -197,6 +197,9 @@ def generate_price_explanation(
     except Exception:
         return default_result
 
+@app.get("/")
+def root():
+    return {"message": "backend is running"}
 
 @app.get("/health")
 def health():
