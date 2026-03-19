@@ -100,9 +100,9 @@ export default function Home() {
         const optionBonus = vehicleData.options.length * 50000
         
         const basePrice = Math.max(500, 3500 - (basePriceFactor * 200) - (mileageFactor * 50))
-        const fairPrice = Math.round(basePrice * accidentFactor + optionBonus / 10000) * 10000
-        const fastPrice = Math.round(fairPrice * 0.92 / 10000) * 10000
-        const highPrice = Math.round(fairPrice * 1.08 / 10000) * 10000
+        const fairPrice = Math.round((basePrice * accidentFactor + optionBonus / 10000) / 10) * 10
+        const fastPrice = Math.round((fairPrice * 0.92) / 10) * 10
+        const highPrice = Math.round((fairPrice * 1.08) / 10) * 10
         
         return { fastPrice, fairPrice, highPrice }
       }
@@ -183,23 +183,7 @@ export default function Home() {
         )}
       </div>
 
-      {currentScreen > 0 && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 bg-foreground/90 backdrop-blur-sm rounded-full shadow-lg">
-          {[1, 2, 3].map((screen) => (
-            <button
-              key={screen}
-              onClick={() => setCurrentScreen(screen as 1 | 2 | 3)}
-              className={`w-8 h-8 rounded-full text-sm font-medium transition-all ${
-                currentScreen === screen
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-card/20 text-card hover:bg-card/30"
-              }`}
-            >
-              {screen}
-            </button>
-          ))}
-        </div>
-      )}
+
     </div>
   )
 }

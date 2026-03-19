@@ -43,8 +43,13 @@ interface PriceResultScreenProps {
   isExplanationLoading?: boolean
 }
 
+function normalizePrice(value: number) {
+  const rounded = Math.round(value)
+  return rounded >= 100000 ? Math.round(rounded / 10000) : rounded
+}
+
 function formatPrice(value: number) {
-  return `${Math.round(value).toLocaleString()}만원`
+  return `${normalizePrice(value).toLocaleString()}만원`
 }
 
 function formatMileage(value: string) {
@@ -293,7 +298,7 @@ export function PriceResultScreen({
 
                     <div className="text-right shrink-0">
                       <div className="text-[30px] font-extrabold tracking-tight text-foreground leading-none">
-                        {Math.round(strategy.price).toLocaleString()}
+                        {normalizePrice(strategy.price).toLocaleString()}
                         <span className="text-lg font-semibold ml-1">만원</span>
                       </div>
                     </div>
@@ -333,17 +338,17 @@ export function PriceResultScreen({
 
             <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="rounded-2xl bg-background p-3 text-center border border-border">
-                <p className="text-2xl font-bold text-foreground">{marketData.low.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-foreground">{normalizePrice(marketData.low).toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground mt-1">최저가</p>
               </div>
 
               <div className="rounded-2xl bg-orange-50 p-3 text-center border border-primary/20">
-                <p className="text-2xl font-bold text-primary">{marketData.avg.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-primary">{normalizePrice(marketData.avg).toLocaleString()}</p>
                 <p className="text-xs text-primary mt-1">평균가</p>
               </div>
 
               <div className="rounded-2xl bg-background p-3 text-center border border-border">
-                <p className="text-2xl font-bold text-foreground">{marketData.high.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-foreground">{normalizePrice(marketData.high).toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground mt-1">최고가</p>
               </div>
             </div>
