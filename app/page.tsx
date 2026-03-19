@@ -162,7 +162,7 @@ export default function Home() {
             vehicleData={vehicleData}
             isLoading={isLoading}
             onBack={() => {
-              setEditStep(null)
+              setEditStep("options")
               setCurrentScreen(1)
             }}
             onNext={handleSummaryNext}
