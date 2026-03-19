@@ -7,12 +7,28 @@ import {
   CircleDollarSign,
   Fuel,
   Gauge,
+  Lightbulb,
+  Loader2,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
   TrendingUp,
   Wrench,
 } from "lucide-react"
+
+interface AIExplanation {
+  summary: string
+  factors: {
+    label: string
+    impact: "positive" | "neutral" | "negative"
+    description: string
+  }[]
+  strategies: {
+    fast: string
+    fair: string
+    high: string
+  }
+}
 
 interface PriceResultScreenProps {
   onBack: () => void
@@ -23,6 +39,8 @@ interface PriceResultScreenProps {
     fairPrice: number
     highPrice: number
   } | null
+  explanation?: AIExplanation | null
+  isExplanationLoading?: boolean
 }
 
 function formatPrice(value: number) {
@@ -129,6 +147,8 @@ export function PriceResultScreen({
   onRegister,
   vehicleData,
   prediction,
+  explanation,
+  isExplanationLoading = false,
 }: PriceResultScreenProps) {
   const marketData = getMarketData(prediction)
   const recommendedPrice = prediction?.fairPrice ?? 0
@@ -400,6 +420,166 @@ export function PriceResultScreen({
                   : "선택된 주요 옵션은 없어요"}
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* AI가 본 가격 설명 섹션 */}
+        <section className="rounded-3xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Lightbulb className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-bold text-foreground">AI가 본 가격 설명</h2>
+          </div>
+
+          {isExplanationLoading ? (
+            <div className="flex flex-col items-center justify-center py-8 gap-3">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              <p className="text-sm text-muted-foreground">AI가 가격을 분석하고 있어요...</p>
+            </div>
+          ) : explanation ? (
+            <div className="space-y-4">
+              {/* 요약 설명 */}
+              <div className="rounded-2xl bg-orange-50/60 border border-orange-100 p-4">
+                <p className="text-sm leading-relaxed text-foreground">
+                  {explanation.summary}
+                </p>
+              </div>
+
+              {/* 요인별 분석 */}
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-foreground mb-3">가격에 영향을 준 요인</p>
+                {explanation.factors.map((factor, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3 rounded-2xl border border-border p-3 bg-background"
+                  >
+                    <div
+                      className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                        factor.impact === "positive"
+                          ? "bg-green-500"
+                          : factor.impact === "negative"
+                          ? "bg-red-400"
+                          : "bg-muted-foreground"
+                      }`}
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{factor.label}</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{factor.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* 전략별 해석 */}
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-foreground mb-3">판매 전략 해석</p>
+                <div className="grid gap-2">
+                  <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-3">
+                    <p className="text-sm font-medium text-blue-700 mb-1">빠른 판매</p>
+                    <p className="text-sm text-muted-foreground">{explanation.strategies.fast}</p>
+                  </div>
+                  <div className="rounded-2xl border border-orange-100 bg-orange-50/40 p-3">
+                    <p className="text-sm font-medium text-primary mb-1">적정 판매</p>
+                    <p className="text-sm text-muted-foreground">{explanation.strategies.fair}</p>
+                  </div>
+                  <div className="rounded-2xl border border-green-100 bg-green-50/40 p-3">
+                    <p className="text-sm font-medium text-green-700 mb-1">최대 수익</p>
+                    <p className="text-sm text-muted-foreground">{explanation.strategies.high}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* 플레이스홀더 - explanation이 없을 때 기본 표시 */
+            <div className="space-y-4">
+              <div className="rounded-2xl bg-orange-50/60 border border-orange-100 p-4">
+                <p className="text-sm leading-relaxed text-foreground">
+                  입력하신 차량 정보를 종합적으로 분석한 결과, 현재 시장 상황과 차량 조건을 고려하여 위와 같은 추천 가격대를 산출했어요.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-foreground mb-3">가격에 영향을 준 요인</p>
+                <div className="flex items-start gap-3 rounded-2xl border border-border p-3 bg-background">
+                  <div className="w-2 h-2 rounded-full mt-1.5 shrink-0 bg-green-500" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">연식</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {getVehicleAge(vehicleData.year)}년된 차량으로, 연식이 가격 산정에 반영되었어요.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-2xl border border-border p-3 bg-background">
+                  <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                    Number(String(vehicleData.mileage).replace(/,/g, "")) <= 80000 ? "bg-green-500" : "bg-muted-foreground"
+                  }`} />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">주행거리</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {formatMileage(vehicleData.mileage)} 주행으로, 동급 차량 대비 주행거리가 가격에 영향을 주었어요.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-2xl border border-border p-3 bg-background">
+                  <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                    vehicleData.accident === "사고 이력 있음" ? "bg-red-400" : "bg-green-500"
+                  }`} />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">사고 여부</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {vehicleData.accident === "사고 이력 있음"
+                        ? "사고 이력이 있어 가격이 다소 보수적으로 산정되었어요."
+                        : "무사고 차량으로 가격 방어에 유리해요."}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-2xl border border-border p-3 bg-background">
+                  <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                    optionCount >= 3 ? "bg-green-500" : "bg-muted-foreground"
+                  }`} />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">옵션 수준</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {optionCount >= 5
+                        ? "다양한 옵션이 포함되어 가격 상승 요인으로 작용했어요."
+                        : optionCount >= 2
+                        ? "기본적인 옵션이 포함되어 있어요."
+                        : "옵션이 적어 가격 영향은 제한적이에요."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-foreground mb-3">판매 전략 해석</p>
+                <div className="grid gap-2">
+                  <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-3">
+                    <p className="text-sm font-medium text-blue-700 mb-1">빠른 판매</p>
+                    <p className="text-sm text-muted-foreground">
+                      빠르게 거래를 성사시키고 싶다면 이 가격대로 시작해보세요. 문의가 빨리 들어올 가능성이 높아요.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-orange-100 bg-orange-50/40 p-3">
+                    <p className="text-sm font-medium text-primary mb-1">적정 판매</p>
+                    <p className="text-sm text-muted-foreground">
+                      시세와 차량 상태를 균형 있게 반영한 가격이에요. 합리적인 협상이 가능한 시작점이에요.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-green-100 bg-green-50/40 p-3">
+                    <p className="text-sm font-medium text-green-700 mb-1">최대 수익</p>
+                    <p className="text-sm text-muted-foreground">
+                      시간 여유가 있다면 높은 가격으로 올려두고 기다려보세요. 좋은 조건의 구매자를 만날 수 있어요.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-4 pt-4 border-t border-border">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              위 분석은 AI가 입력된 차량 정보와 시장 데이터를 기반으로 제공하는 참고 자료입니다. 
+              실제 거래 가격은 차량의 실물 상태, 지역, 계절, 협상 등에 따라 달라질 수 있어요.
+            </p>
           </div>
         </section>
       </div>
