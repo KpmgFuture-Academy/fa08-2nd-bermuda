@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight, Check, SkipForward, Sun, Lightbulb, ParkingCircle, Video, Wind, Key, Navigation, Flame, Snowflake, Armchair } from "lucide-react"
+import { ChevronLeft, ChevronRight, Check, SkipForward, Sun, Lightbulb, ParkingCircle, Video, Wind, Key, Navigation, Flame, Snowflake, Armchair, Menu, X } from "lucide-react"
 
 type Step =
   | "manufacturer" | "model" | "trim" | "year" | "displacement" | "fuel"
@@ -105,6 +105,7 @@ const defaultFormData = {
 export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }: VehicleInputScreenProps) {
   const [step, setStep] = useState<Step>(initialStep || "manufacturer")
   const [formData, setFormData] = useState(initialData || defaultFormData)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   useEffect(() => {
     if (initialStep) {
@@ -657,8 +658,79 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
             <ChevronLeft className="w-6 h-6" />
           </button>
           <h1 className="flex-1 text-center text-base font-semibold text-foreground">내 차 시세 조회</h1>
-          <div className="w-10" />
+          <button
+            className="p-2 -mr-2 text-foreground transition-colors"
+            aria-label="단계 목록"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+
+        {/* Step Navigation Menu */}
+        {isMenuOpen && (
+          <div className="absolute top-14 right-4 w-56 bg-card border border-border rounded-2xl shadow-lg overflow-hidden z-20">
+            <div className="py-2 max-h-80 overflow-y-auto">
+              {steps.map((s, index) => {
+                const isCompleted = index < currentStepIndex
+                const isCurrent = index === currentStepIndex
+                const isAccessible = index <= currentStepIndex
+                
+                return (
+                  <button
+                    key={s}
+                    disabled={!isAccessible}
+                    onClick={() => {
+                      if (isAccessible) {
+                        setStep(s)
+                        setIsMenuOpen(false)
+                      }
+                    }}
+                    className={`w-full px-4 py-2.5 flex items-center gap-3 text-left transition-colors ${
+                      isCurrent
+                        ? "bg-primary/10"
+                        : isAccessible
+                        ? "hover:bg-muted/50"
+                        : ""
+                    } ${!isAccessible ? "opacity-40 cursor-not-allowed" : ""}`}
+                  >
+                    <span
+                      className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-semibold shrink-0 ${
+                        isCompleted
+                          ? "bg-primary text-primary-foreground"
+                          : isCurrent
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {isCompleted ? <Check className="w-3.5 h-3.5" /> : index + 1}
+                    </span>
+                    <span
+                      className={`text-sm ${
+                        isCurrent
+                          ? "font-semibold text-primary"
+                          : isCompleted
+                          ? "text-foreground"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {stepInfo[s].title}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Menu Backdrop */}
+        {isMenuOpen && (
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsMenuOpen(false)}
+          />
+        )}
+
         {/* Progress */}
         <div className="px-4 pb-4">
           <div className="flex items-center justify-between text-xs mb-2">
