@@ -301,7 +301,7 @@ export function PriceResultScreen({
                     </div>
                     <div className="shrink-0 text-right">
                       <div className="whitespace-nowrap leading-none text-foreground">
-                        <span className="text-[1.3rem] font-extrabold tracking-tight sm:text-[1.7rem]">
+                        <span className="text-[1.45rem] font-extrabold tracking-tight sm:text-[1.7rem]">
                           {normalizePrice(strategy.price).toLocaleString()}
                         </span>
                         <span className="ml-1 text-[0.8rem] font-semibold text-muted-foreground sm:text-sm">
@@ -345,15 +345,15 @@ export function PriceResultScreen({
 
             <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="rounded-2xl border border-border bg-background p-3 text-center">
-                <p className="text-2xl font-bold text-foreground">{normalizePrice(marketData.low).toLocaleString()}</p>
+                <p className="text-[1.35rem] font-bold text-foreground sm:text-2xl">{normalizePrice(marketData.low).toLocaleString()}</p>
                 <p className="mt-1 text-xs text-muted-foreground">최저가</p>
               </div>
               <div className="rounded-2xl border border-primary/20 bg-orange-50 p-3 text-center">
-                <p className="text-2xl font-bold text-primary">{normalizePrice(marketData.avg).toLocaleString()}</p>
+                <p className="text-[1.35rem] font-bold text-primary sm:text-2xl">{normalizePrice(marketData.avg).toLocaleString()}</p>
                 <p className="mt-1 text-xs text-primary">평균가</p>
               </div>
               <div className="rounded-2xl border border-border bg-background p-3 text-center">
-                <p className="text-2xl font-bold text-foreground">{normalizePrice(marketData.high).toLocaleString()}</p>
+                <p className="text-[1.35rem] font-bold text-foreground sm:text-2xl">{normalizePrice(marketData.high).toLocaleString()}</p>
                 <p className="mt-1 text-xs text-muted-foreground">최고가</p>
               </div>
             </div>
