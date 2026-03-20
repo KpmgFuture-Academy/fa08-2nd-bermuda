@@ -144,8 +144,7 @@ export default function Home() {
       setIsLoading(true)
 
       try {
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
-        const res = await fetch(`${apiBaseUrl}/predict`, {
+        const res = await fetch("/api/predict", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
