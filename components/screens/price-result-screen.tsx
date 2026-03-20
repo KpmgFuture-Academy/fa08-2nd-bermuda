@@ -230,16 +230,6 @@ export function PriceResultScreen({
           <h1 className="screen-hero text-foreground">추천 판매가격</h1>
           <div className="w-10" />
         </div>
-
-        <div className="mb-2 flex items-center gap-2 text-[22px] font-semibold text-primary">
-          <span>3</span>
-          <span className="text-muted-foreground">/</span>
-          <span className="text-muted-foreground">3</span>
-        </div>
-
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div className="h-full w-full rounded-full bg-primary" />
-        </div>
       </div>
 
       <div className="space-y-5 px-6 py-5">

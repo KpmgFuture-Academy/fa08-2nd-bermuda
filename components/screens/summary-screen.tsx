@@ -128,20 +128,6 @@ export function SummaryScreen({
           <h1 className="screen-section-title flex-1 text-center text-foreground">입력 정보 확인</h1>
           <div className="w-10" />
         </div>
-
-        <div className="px-4 pb-4">
-          <div className="mb-2 flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">
-              <span className="font-semibold text-primary">14</span>
-              <span className="mx-1">/</span>
-              <span>15</span>
-            </span>
-            <span className="text-muted-foreground">93%</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-primary" style={{ width: "93%" }} />
-          </div>
-        </div>
       </header>
 
       <main className="flex-1 overflow-y-auto pb-28">
