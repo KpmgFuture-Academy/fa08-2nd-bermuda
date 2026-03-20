@@ -189,7 +189,7 @@ export function PriceResultScreen({
       icon: CircleDollarSign,
       iconBg: "bg-orange-50",
       iconColor: "text-primary",
-      cardClass: "border-2 border-primary bg-orange-50/40 shadow-[0_6px_20px_rgba(249,115,22,0.12)]",
+      cardClass: "border-2 border-primary/30 bg-card shadow-[0_6px_20px_rgba(15,23,42,0.06)]",
       titleColor: "text-primary",
       recommended: true,
     },
@@ -227,14 +227,14 @@ export function PriceResultScreen({
               >
              <ArrowLeft className="h-5 w-5 text-foreground" />
            </button>
-           <h1 className="flex-1 text-center text-base font-semibold text-foreground">추천 판매가격</h1>
+           <h1 className="screen-section-title flex-1 text-center text-foreground">추천 판매가격</h1>
            <div className="w-10" />
         </div>
       </header>
     </div>
 
       <div className="space-y-5 px-6 py-5">
-        <section className="rounded-3xl border border-orange-100 bg-orange-50/70 p-5">
+        <section className="rounded-3xl border border-border bg-card p-5">
           <div className="flex items-start gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white">
               <CarFront className="h-5 w-5 text-primary" />
@@ -339,7 +339,7 @@ export function PriceResultScreen({
                 <p className="text-[1.35rem] font-bold text-foreground sm:text-2xl">{normalizePrice(marketData.low).toLocaleString()}</p>
                 <p className="mt-1 text-xs text-muted-foreground">최저가</p>
               </div>
-              <div className="rounded-2xl border border-primary/20 bg-orange-50 p-3 text-center">
+              <div className="rounded-2xl border border-primary/20 bg-background p-3 text-center">
                 <p className="text-[1.35rem] font-bold text-primary sm:text-2xl">{normalizePrice(marketData.avg).toLocaleString()}</p>
                 <p className="mt-1 text-xs text-primary">평균가</p>
               </div>
@@ -358,7 +358,7 @@ export function PriceResultScreen({
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-2xl border border-orange-100 bg-orange-50/70 p-4">
+            <div className="rounded-2xl border border-border bg-background p-4">
               <div className="mb-2 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <p className="screen-caption font-semibold text-foreground">한눈에 보기</p>
