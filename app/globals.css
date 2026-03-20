@@ -121,7 +121,7 @@
   }
 
   .screen-section-title {
-    @apply text-[22px] font-bold leading-[1.4];
+    @apply text-[22px] font-bold leading-[1.4] tracking-[-0.01em];
   }
 
   .screen-label {

@@ -227,7 +227,7 @@ export function PriceResultScreen({
               >
              <ArrowLeft className="h-5 w-5 text-foreground" />
            </button>
-           <h1 className="screen-section-title flex-1 text-center text-foreground">추천 판매가격</h1>
+           <h1 className="flex-1 text-center text-[22px] font-bold leading-[1.4] tracking-[-0.01em] text-foreground">추천 판매가격</h1>
            <div className="w-10" />
         </div>
       </header>

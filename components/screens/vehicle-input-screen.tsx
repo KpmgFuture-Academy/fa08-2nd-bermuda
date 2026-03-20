@@ -757,7 +757,7 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
-          <h1 className="screen-section-title flex-1 text-center text-foreground">내 차 시세 조회</h1>
+          <h1 className="flex-1 text-center text-[22px] font-bold leading-[1.4] tracking-[-0.01em] text-foreground">내 차 시세 조회</h1>
           <button
             className="p-2 -mr-2 text-foreground transition-colors"
             aria-label="단계 목록"

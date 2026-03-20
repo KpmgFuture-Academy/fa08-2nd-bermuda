@@ -125,7 +125,7 @@ export function SummaryScreen({
           <button type="button" onClick={onBack} className="-ml-2 p-2 text-foreground" aria-label="뒤로가기">
             <ChevronLeft className="h-6 w-6" />
           </button>
-          <h1 className="screen-section-title flex-1 text-center text-foreground">입력 정보 확인</h1>
+          <h1 className="flex-1 text-center text-[22px] font-bold leading-[1.4] tracking-[-0.01em] text-foreground">입력 정보 확인</h1>
           <div className="w-10" />
         </div>
       </header>
