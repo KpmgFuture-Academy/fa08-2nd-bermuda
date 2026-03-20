@@ -220,9 +220,10 @@ export function SummaryScreen({
             type="button"
             onClick={onNext}
             disabled={isLoading}
+            aria-busy={isLoading}
             className="screen-button h-14 w-full rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isLoading ? "가격 계산 중..." : "AI 가격 예측 보기"}
+            AI 가격 예측 보기
           </button>
         </div>
       </div>

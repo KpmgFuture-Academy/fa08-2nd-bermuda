@@ -53,6 +53,20 @@ const trims: Record<string, string[]> = {
 const fuels = ["가솔린", "디젤", "하이브리드", "LPG"]
 const transmissions = ["자동", "수동", "CVT", "DCT"]
 const colors = ["흰색", "검정", "회색", "은색", "빨강", "파랑", "네이비", "녹색", "노랑", "주황", "갈색", "베이지", "기타"]
+const colorSwatchMap: Record<string, string> = {
+  "흰색": "#FFFFFF",
+  "검정": "#111111",
+  "회색": "#9CA3AF",
+  "은색": "#D1D5DB",
+  "빨강": "#DC2626",
+  "파랑": "#2563EB",
+  "네이비": "#1E3A8A",
+  "녹색": "#16A34A",
+  "노랑": "#FACC15",
+  "주황": "#F97316",
+  "갈색": "#8B5E3C",
+  "베이지": "#E5CBA8",
+}
 const countOptions = ["없음", "1개", "2개", "3개", "4개", "5개 이상"]
 
 type ModelMeta = {
@@ -509,7 +523,13 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
                 selected={formData.color === color}
                 onClick={() => selectOption("color", color)}
               >
-                {color}
+                {color !== "기타" && (
+                  <span
+                    className="inline-block w-3.5 h-3.5 rounded-full border border-black/10 shrink-0"
+                    style={{ backgroundColor: colorSwatchMap[color] }}
+                  />
+                )}
+                <span>{color}</span>
               </SelectButton>
             ))}
           </div>

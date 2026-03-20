@@ -462,7 +462,7 @@ export function PriceResultScreen({
                   <p className="mt-2 text-lg font-bold text-foreground">{formatPrice(pricingMeta.baseQ50)}</p>
                 </div>
                 <div className="rounded-2xl border border-border bg-background p-4">
-                  <p className="text-xs text-muted-foreground">예상 마진율</p>
+                  <p className="text-xs text-muted-foreground">직거래 보정 마진율</p>
                   <p className="mt-2 text-lg font-bold text-foreground">
                     {(pricingMeta.marginRate * 100).toFixed(1)}%
                   </p>
