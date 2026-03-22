@@ -38,11 +38,15 @@ type PredictionData = {
     trustDiscount: number
     baseQ50: number
   }
-  explanation: {
+  explanation?: {
     summary: string
     detail: string
     tip: string
     source?: string
+    debug?: {
+      openai_enabled?: boolean
+      reason?: string
+    }
   }
 }
 
@@ -83,6 +87,7 @@ type Step =
 
 type EditSection = "basic" | "status" | "accident" | "options"
 const PREDICT_TIMEOUT_MS = 30000
+const EXPLAIN_TIMEOUT_MS = 20000
 
 const sectionToStep: Record<EditSection, Step> = {
   basic: "manufacturer",
@@ -110,12 +115,17 @@ function createMockPrediction(vehicleData: VehicleFormData): PredictionData {
     fastPrice,
     fairPrice,
     highPrice,
-    explanation: {
-      summary: "입력한 차량 조건을 바탕으로 예상 판매 가격대를 계산했어요.",
-      detail:
-        "연식, 주행거리, 사고 이력, 옵션 수를 함께 반영해 빠른 판매가와 적정 판매가, 기대 판매가를 구성했습니다.",
-      tip: "급하게 판매해야 한다면 빠른 판매가를, 여유가 있다면 적정 판매가부터 시작해 보세요.",
-    },
+    explanation: createFallbackExplanation(),
+  }
+}
+
+function createFallbackExplanation(): NonNullable<PredictionData["explanation"]> {
+  return {
+    summary: "입력한 차량 조건을 바탕으로 예상 판매 가격대를 계산했어요.",
+    detail:
+      "연식, 주행거리, 사고 이력, 옵션 수를 함께 반영해 빠른 판매가와 적정 판매가, 기대 판매가를 구성했습니다.",
+    tip: "급하게 판매해야 한다면 빠른 판매가를, 여유가 있다면 적정 판매가부터 시작해 보세요.",
+    source: "fallback",
   }
 }
 
@@ -124,6 +134,7 @@ export default function Home() {
   const [vehicleData, setVehicleData] = useState<VehicleFormData>(initialVehicleData)
   const [prediction, setPrediction] = useState<PredictionData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isExplanationLoading, setIsExplanationLoading] = useState(false)
   const [editStep, setEditStep] = useState<Step | null>(null)
 
   useEffect(() => {
@@ -144,6 +155,7 @@ export default function Home() {
   const handleSummaryNext = async () => {
     try {
       setIsLoading(true)
+      setIsExplanationLoading(false)
 
       try {
         const controller = new AbortController()
@@ -164,7 +176,7 @@ export default function Home() {
         }
 
         const rawText = await res.text()
-        let result: PredictionData | { detail?: string } = {}
+        let result: Partial<PredictionData> | { detail?: string } = {}
 
         try {
           result = rawText ? JSON.parse(rawText) : {}
@@ -173,12 +185,28 @@ export default function Home() {
         }
 
         if (!res.ok) {
-          const errorDetail =
-            "detail" in result ? result.detail : undefined
+          const errorDetail = "detail" in result ? result.detail : undefined
           throw new Error(errorDetail || "가격 예측 요청에 실패했습니다.")
         }
 
-        setPrediction(result as PredictionData)
+        const priceResult = result as Partial<PredictionData>
+        const nextPrediction: PredictionData = {
+          fastPrice: Number(priceResult.fastPrice ?? 0),
+          fairPrice: Number(priceResult.fairPrice ?? 0),
+          highPrice: Number(priceResult.highPrice ?? 0),
+          pricingMeta: priceResult.pricingMeta,
+          explanation: priceResult.explanation ?? createFallbackExplanation(),
+        }
+
+        setPrediction(nextPrediction)
+        setCurrentScreen(3)
+
+        if (nextPrediction.explanation?.source === "openai") {
+          setIsExplanationLoading(false)
+        } else {
+          setIsExplanationLoading(true)
+          void fetchExplanation(nextPrediction)
+        }
       } catch (apiError) {
         console.error("Predict API error:", apiError)
 
@@ -192,20 +220,78 @@ export default function Home() {
 
         if (isLocalhost) {
           setPrediction(createMockPrediction(vehicleData))
+          setCurrentScreen(3)
         } else {
           throw apiError instanceof Error
             ? apiError
             : new Error("가격 예측 요청에 실패했습니다.")
         }
       }
-
-      setCurrentScreen(3)
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다."
       alert(message)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchExplanation = async (basePrediction: PredictionData) => {
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), EXPLAIN_TIMEOUT_MS)
+      let res: Response
+
+      try {
+        res = await fetch("/api/explain-price", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...vehicleData,
+            fastPrice: basePrediction.fastPrice,
+            fairPrice: basePrediction.fairPrice,
+            highPrice: basePrediction.highPrice,
+          }),
+          signal: controller.signal,
+        })
+      } finally {
+        clearTimeout(timeoutId)
+      }
+
+      const rawText = await res.text()
+      let result: { explanation?: PredictionData["explanation"]; detail?: string } = {}
+
+      try {
+        result = rawText ? JSON.parse(rawText) : {}
+      } catch {
+        throw new Error("가격 설명 서버 응답 형식이 올바르지 않습니다.")
+      }
+
+      if (!res.ok) {
+        throw new Error(result.detail || "가격 설명 요청에 실패했습니다.")
+      }
+
+      if (result.explanation) {
+        setPrediction((currentPrediction) => {
+          if (!currentPrediction) {
+            return currentPrediction
+          }
+
+          return {
+            ...currentPrediction,
+            explanation: {
+              ...createFallbackExplanation(),
+              ...result.explanation,
+            },
+          }
+        })
+      }
+    } catch (error) {
+      console.error("Explain API error:", error)
+    } finally {
+      setIsExplanationLoading(false)
     }
   }
 
@@ -247,6 +333,7 @@ export default function Home() {
           <PriceResultScreen
             vehicleData={vehicleData}
             prediction={prediction}
+            isExplanationLoading={isExplanationLoading}
             onBack={() => setCurrentScreen(2)}
             onRegister={() => alert("등록 기능은 다음 단계에서 연결할 예정입니다.")}
           />

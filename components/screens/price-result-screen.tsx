@@ -29,13 +29,18 @@ interface PriceResultScreenProps {
       trustDiscount: number
       baseQ50: number
     }
-    explanation: {
+    explanation?: {
       summary: string
       detail: string
       tip: string
       source?: string
+      debug?: {
+        openai_enabled?: boolean
+        reason?: string
+      }
     }
   } | null
+  isExplanationLoading?: boolean
 }
 
 function normalizePrice(value: number) {
@@ -150,6 +155,7 @@ export function PriceResultScreen({
   onRegister,
   vehicleData,
   prediction,
+  isExplanationLoading = false,
 }: PriceResultScreenProps) {
   const marketData = getMarketData(prediction)
   const accidentText = getAccidentText(vehicleData)
@@ -160,13 +166,13 @@ export function PriceResultScreen({
 
   const explanationSummary =
     prediction?.explanation?.summary ||
-    "입력한 차량 정보를 바탕으로 지금 판매해볼 만한 가격대를 정리했어요."
+    "AI가 가격 형성 이유를 정리하고 있어요."
   const explanationDetail =
     prediction?.explanation?.detail ||
-    "연식, 주행거리, 사고 이력, 옵션 구성을 함께 반영해 현재 시세에 맞는 판매 가격대를 계산했어요."
+    "입력한 차량 조건을 바탕으로 설명을 준비하는 중이에요. 잠시만 기다려 주세요."
   const explanationTip =
     prediction?.explanation?.tip ||
-    "빨리 판매하고 싶다면 빠른 판매가에 가깝게, 여유가 있다면 적정 판매가부터 시작해보세요."
+    "설명이 준비되면 판매 전략 팁도 함께 보여드릴게요."
   const isOpenAiExplanation = prediction?.explanation?.source === "openai"
 
   const strategies = [
@@ -360,6 +366,11 @@ export function PriceResultScreen({
           <div className="mb-4 flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             <h2 className="screen-section-title text-foreground">가격 해석</h2>
+            {isExplanationLoading && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                AI 설명 생성 중...
+              </span>
+            )}
           </div>
 
           <div className="space-y-4">
