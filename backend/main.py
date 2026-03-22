@@ -347,7 +347,7 @@ def generate_price_explanation(
                     "content": prompt,
                 },
             ],
-            max_tokens=140,
+            max_tokens=300,
             temperature=0.3,
         )
 
