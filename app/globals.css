@@ -3,7 +3,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.98 0 0);
+  --background: oklch(1 0 0);
   --foreground: oklch(0.2 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0 0);
@@ -120,7 +120,7 @@
   }
 
   .screen-section-title {
-    @apply text-[22px] font-bold leading-[1.4];
+    @apply text-[22px] font-bold leading-[1.4] tracking-[-0.01em];
   }
 
   .screen-label {

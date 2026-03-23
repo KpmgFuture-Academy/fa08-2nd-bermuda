@@ -21,7 +21,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <CarFront className="h-4 w-4 text-primary-foreground" />
           </div>
-          <span className="screen-label text-primary">당근</span>
+          <span className="screen-label text-primary">직거래</span>
         </div>
       </header>
 

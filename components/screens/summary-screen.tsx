@@ -50,7 +50,7 @@ function formatMileage(value: string) {
 
 function formatAccidentLabel(value: string) {
   if (!value) return "-"
-  return value.includes("사고") ? "사고 이력 있음" : "무사고"
+  return String(value).trim() === "사고 이력 있음" ? "사고 이력 있음" : "무사고"
 }
 
 export function SummaryScreen({
@@ -60,7 +60,7 @@ export function SummaryScreen({
   vehicleData,
   isLoading = false,
 }: SummaryScreenProps) {
-  const hasAccident = String(vehicleData.accident || "").includes("사고")
+  const hasAccident = String(vehicleData.accident || "").trim() === "사고 이력 있음"
   const selectedOptions = Array.isArray(vehicleData.options) ? vehicleData.options : []
 
   const InfoRow = ({
@@ -125,22 +125,8 @@ export function SummaryScreen({
           <button type="button" onClick={onBack} className="-ml-2 p-2 text-foreground" aria-label="뒤로가기">
             <ChevronLeft className="h-6 w-6" />
           </button>
-          <h1 className="screen-section-title flex-1 text-center text-foreground">입력 정보 확인</h1>
+          <h1 className="flex-1 text-center text-[22px] font-bold leading-[1.4] tracking-[-0.01em] text-foreground">입력 정보 확인</h1>
           <div className="w-10" />
-        </div>
-
-        <div className="px-4 pb-4">
-          <div className="mb-2 flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">
-              <span className="font-semibold text-primary">14</span>
-              <span className="mx-1">/</span>
-              <span>15</span>
-            </span>
-            <span className="text-muted-foreground">93%</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-primary" style={{ width: "93%" }} />
-          </div>
         </div>
       </header>
 
@@ -234,9 +220,10 @@ export function SummaryScreen({
             type="button"
             onClick={onNext}
             disabled={isLoading}
+            aria-busy={isLoading}
             className="screen-button h-14 w-full rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isLoading ? "가격 계산 중..." : "AI 가격 예측 보기"}
+            AI 가격 예측 보기
           </button>
         </div>
       </div>

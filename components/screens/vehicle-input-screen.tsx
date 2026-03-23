@@ -50,13 +50,84 @@ const trims: Record<string, string[]> = {
   "default": ["베이직", "스마트", "프리미엄", "익스클루시브", "풀옵션"]
 }
 
-const years = Array.from({ length: 15 }, (_, i) => (2024 - i).toString())
 const fuels = ["가솔린", "디젤", "하이브리드", "LPG"]
 const transmissions = ["자동", "수동", "CVT", "DCT"]
-const vehicleClasses = ["경차", "소형", "준중형", "중형", "준대형", "대형", "SUV", "RV/MPV", "스포츠카", "픽업트럭"]
-const seatOptions = ["2인승", "4인승", "5인승", "6인승", "7인승", "8인승", "9인승 이상"]
 const colors = ["흰색", "검정", "회색", "은색", "빨강", "파랑", "네이비", "녹색", "노랑", "주황", "갈색", "베이지", "기타"]
+const colorSwatchMap: Record<string, string> = {
+  "흰색": "#FFFFFF",
+  "검정": "#111111",
+  "회색": "#9CA3AF",
+  "은색": "#D1D5DB",
+  "빨강": "#DC2626",
+  "파랑": "#2563EB",
+  "네이비": "#1E3A8A",
+  "녹색": "#16A34A",
+  "노랑": "#FACC15",
+  "주황": "#F97316",
+  "갈색": "#8B5E3C",
+  "베이지": "#E5CBA8",
+}
 const countOptions = ["없음", "1개", "2개", "3개", "4개", "5개 이상"]
+
+type ModelMeta = {
+  minYear: number
+  maxYear: number
+  vehicleClass: string
+  seats: string[]
+  displacements: string[]
+}
+
+const defaultMeta: ModelMeta = {
+  minYear: 2000,
+  maxYear: 2024,
+  vehicleClass: "중형",
+  seats: ["5인승"],
+  displacements: ["1600", "2000", "2500"],
+}
+
+const modelMetaMap: Record<string, ModelMeta> = {
+  "그랜저": { minYear: 2000, maxYear: 2024, vehicleClass: "준대형", seats: ["5인승"], displacements: ["2400", "2500", "3000", "3300"] },
+  "쏘나타": { minYear: 2000, maxYear: 2024, vehicleClass: "중형", seats: ["5인승"], displacements: ["1600", "2000", "2500"] },
+  "아반떼": { minYear: 2000, maxYear: 2024, vehicleClass: "준중형", seats: ["5인승"], displacements: ["1600", "2000"] },
+  "베뉴": { minYear: 2019, maxYear: 2024, vehicleClass: "소형", seats: ["5인승"], displacements: ["1600"] },
+  "코나": { minYear: 2017, maxYear: 2024, vehicleClass: "소형", seats: ["5인승"], displacements: ["1600", "2000"] },
+  "투싼": { minYear: 2000, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["1600", "2000"] },
+  "싼타페": { minYear: 2000, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승", "6인승", "7인승"], displacements: ["2000", "2200", "2500"] },
+  "팰리세이드": { minYear: 2018, maxYear: 2024, vehicleClass: "SUV", seats: ["7인승", "8인승"], displacements: ["2200", "3800"] },
+  "스타리아": { minYear: 2021, maxYear: 2024, vehicleClass: "RV/MPV", seats: ["5인승", "7인승", "9인승 이상"], displacements: ["2200", "3500"] },
+  "캐스퍼": { minYear: 2021, maxYear: 2024, vehicleClass: "경차", seats: ["4인승"], displacements: ["1000"] },
+  "모닝": { minYear: 2000, maxYear: 2024, vehicleClass: "경차", seats: ["4인승", "5인승"], displacements: ["1000"] },
+  "레이": { minYear: 2011, maxYear: 2024, vehicleClass: "경차", seats: ["4인승", "5인승"], displacements: ["1000"] },
+  "K3": { minYear: 2012, maxYear: 2024, vehicleClass: "준중형", seats: ["5인승"], displacements: ["1600", "2000"] },
+  "K5": { minYear: 2010, maxYear: 2024, vehicleClass: "중형", seats: ["5인승"], displacements: ["1600", "2000", "2500"] },
+  "K7": { minYear: 2010, maxYear: 2021, vehicleClass: "준대형", seats: ["5인승"], displacements: ["2400", "2500", "3000", "3300"] },
+  "K8": { minYear: 2021, maxYear: 2024, vehicleClass: "준대형", seats: ["5인승"], displacements: ["1600", "2500", "3500"] },
+  "K9": { minYear: 2012, maxYear: 2024, vehicleClass: "대형", seats: ["5인승"], displacements: ["3300", "3800"] },
+  "셀토스": { minYear: 2019, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["1600", "2000"] },
+  "스포티지": { minYear: 2000, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["1600", "2000"] },
+  "쏘렌토": { minYear: 2000, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승", "6인승", "7인승"], displacements: ["2200", "2500"] },
+  "카니발": { minYear: 2000, maxYear: 2024, vehicleClass: "RV/MPV", seats: ["7인승", "9인승 이상"], displacements: ["2200", "3500"] },
+  "니로": { minYear: 2016, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["1600"] },
+  "G80": { minYear: 2016, maxYear: 2024, vehicleClass: "대형", seats: ["5인승"], displacements: ["2500", "3000", "3500"] },
+  "G90": { minYear: 2016, maxYear: 2024, vehicleClass: "대형", seats: ["5인승"], displacements: ["3300", "3500", "3800"] },
+  "GV70": { minYear: 2020, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["2500", "3500"] },
+  "GV80": { minYear: 2020, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승", "6인승", "7인승"], displacements: ["2500", "3000", "3500"] },
+  "스파크": { minYear: 2000, maxYear: 2023, vehicleClass: "경차", seats: ["4인승", "5인승"], displacements: ["1000"] },
+  "말리부": { minYear: 2011, maxYear: 2024, vehicleClass: "중형", seats: ["5인승"], displacements: ["1300", "1600", "2000"] },
+  "트랙스": { minYear: 2013, maxYear: 2024, vehicleClass: "소형", seats: ["5인승"], displacements: ["1300", "1600"] },
+  "트레일블레이저": { minYear: 2020, maxYear: 2024, vehicleClass: "소형", seats: ["5인승"], displacements: ["1300"] },
+  "이쿼녹스": { minYear: 2018, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["1600", "2000"] },
+  "트래버스": { minYear: 2019, maxYear: 2024, vehicleClass: "SUV", seats: ["7인승", "8인승"], displacements: ["3600"] },
+  "콜로라도": { minYear: 2019, maxYear: 2024, vehicleClass: "픽업트럭", seats: ["5인승"], displacements: ["2500", "3600"] },
+  "SM6": { minYear: 2016, maxYear: 2024, vehicleClass: "중형", seats: ["5인승"], displacements: ["1300", "1600", "2000"] },
+  "XM3": { minYear: 2020, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["1300", "1600"] },
+  "QM6": { minYear: 2016, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["2000"] },
+  "그랑 콜레오스": { minYear: 2024, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["1500", "2000"] },
+  "티볼리": { minYear: 2015, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["1600"] },
+  "토레스": { minYear: 2022, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승"], displacements: ["1500"] },
+  "렉스턴": { minYear: 2000, maxYear: 2024, vehicleClass: "SUV", seats: ["5인승", "7인승"], displacements: ["2200"] },
+  "렉스턴 스포츠": { minYear: 2018, maxYear: 2024, vehicleClass: "픽업트럭", seats: ["5인승"], displacements: ["2200"] },
+}
 
 const optionsList = [
   { id: "sunroof", label: "선루프", icon: Sun },
@@ -71,16 +142,28 @@ const optionsList = [
   { id: "leatherSeat", label: "가죽시트", icon: Armchair },
 ]
 
-const displacementPresets = [
-  { value: "998", label: "998cc" },
-  { value: "1396", label: "1,396cc" },
-  { value: "1598", label: "1,598cc" },
-  { value: "1999", label: "1,999cc" },
-  { value: "2359", label: "2,359cc" },
-  { value: "2497", label: "2,497cc" },
-  { value: "2999", label: "2,999cc" },
-  { value: "3342", label: "3,342cc" },
-]
+
+function getModelMeta(model: string): ModelMeta {
+  return modelMetaMap[model] || defaultMeta
+}
+
+function getAvailableYears(model: string) {
+  const meta = getModelMeta(model)
+  const years = []
+  for (let y = meta.maxYear; y >= meta.minYear; y--) {
+    years.push(String(y))
+  }
+  return years
+}
+
+function getAvailableSeatOptions(model: string) {
+  return getModelMeta(model).seats
+}
+
+function getAvailableDisplacements(model: string) {
+  const values = getModelMeta(model).displacements
+  return values.map((v) => ({ value: v, label: `${Number(v).toLocaleString()}cc` }))
+}
 
 const defaultFormData = {
   manufacturer: "",
@@ -99,7 +182,7 @@ const defaultFormData = {
   paintCount: "",
   insuranceCount: "",
   corrosion: "",
-  options: [] as string[]
+  options: optionsList.map((option) => option.id) as string[]
 }
 
 export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }: VehicleInputScreenProps) {
@@ -118,6 +201,26 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
       setFormData(initialData)
     }
   }, [initialData])
+
+  useEffect(() => {
+    if (!formData.model) return
+
+    const meta = getModelMeta(formData.model)
+    const availableYears = getAvailableYears(formData.model)
+    const availableSeats = getAvailableSeatOptions(formData.model)
+    const availableDisplacements = getAvailableDisplacements(formData.model)
+
+    setFormData((prev: typeof defaultFormData) => ({
+      ...prev,
+      year: availableYears.includes(prev.year) ? prev.year : "",
+      vehicleClass: meta.vehicleClass,
+      seats: availableSeats.includes(prev.seats) ? prev.seats : "",
+      displacement: availableDisplacements.some((d) => d.value === prev.displacement)
+        ? prev.displacement
+        : availableDisplacements[0]?.value || "",
+      options: prev.options.length > 0 ? prev.options : optionsList.map((option) => option.id),
+    }))
+  }, [formData.model])
 
   const steps: Step[] = [
     "manufacturer", "model", "trim", "year", "displacement", "fuel",
@@ -238,7 +341,15 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
                 key={model}
                 selected={formData.model === model}
                 onClick={() => {
-                  setFormData({ ...formData, model, trim: "" })
+                  setFormData({
+                    ...formData,
+                    model,
+                    trim: "",
+                    year: "",
+                    displacement: "",
+                    vehicleClass: "",
+                    seats: "",
+                  })
                   setTimeout(goToNextStep, 200)
                 }}
               >
@@ -280,7 +391,7 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
       case "year":
         return (
           <div className="grid grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto pr-1">
-            {years.map((year) => (
+            {getAvailableYears(formData.model).map((year) => (
               <SelectButton
                 key={year}
                 selected={formData.year === year}
@@ -313,7 +424,7 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
             <div>
               <p className="text-xs font-medium text-muted-foreground mb-3">또는 대표값 선택</p>
               <div className="grid grid-cols-3 gap-2">
-                {displacementPresets.map((preset) => (
+                {getAvailableDisplacements(formData.model).map((preset) => (
                   <button
                     key={preset.value}
                     type="button"
@@ -372,23 +483,26 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
 
       case "vehicleClass":
         return (
-          <div className="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1">
-            {vehicleClasses.map((vc) => (
-              <SelectButton
-                key={vc}
-                selected={formData.vehicleClass === vc}
-                onClick={() => selectOption("vehicleClass", vc)}
-              >
-                {vc}
-              </SelectButton>
-            ))}
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <p className="text-sm text-muted-foreground mb-2">선택한 모델 기준 차급</p>
+              <p className="text-lg font-semibold text-foreground">{formData.vehicleClass}</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={goToNextStep}
+              className="w-full h-14 bg-primary text-primary-foreground font-semibold rounded-2xl transition-all hover:bg-primary/90"
+            >
+              다음
+            </button>
           </div>
         )
 
       case "seats":
         return (
           <div className="grid grid-cols-2 gap-3">
-            {seatOptions.map((seat) => (
+            {getAvailableSeatOptions(formData.model).map((seat) => (
               <SelectButton
                 key={seat}
                 selected={formData.seats === seat}
@@ -409,7 +523,13 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
                 selected={formData.color === color}
                 onClick={() => selectOption("color", color)}
               >
-                {color}
+                {color !== "기타" && (
+                  <span
+                    className="inline-block w-3.5 h-3.5 rounded-full border border-black/10 shrink-0"
+                    style={{ backgroundColor: colorSwatchMap[color] }}
+                  />
+                )}
+                <span>{color}</span>
               </SelectButton>
             ))}
           </div>
@@ -587,7 +707,7 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
       case "options":
         return (
           <div className="space-y-4">
-            <p className="text-xs text-muted-foreground px-1">해당되는 옵션을 모두 선택해주세요</p>
+            <p className="text-xs text-muted-foreground px-1">기본값으로 주요 옵션이 모두 선택되어 있어요. 없는 옵션만 해제해주세요.</p>
             <div className="grid grid-cols-2 gap-3">
               {optionsList.map((option) => {
                 const isSelected = formData.options.includes(option.id)
@@ -610,10 +730,10 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
             </div>
             <button
               type="button"
-              onClick={() => setFormData({ ...formData, options: [] })}
+              onClick={() => setFormData({ ...formData, options: optionsList.map((option) => option.id) })}
               className="w-full h-12 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors rounded-xl border border-dashed border-border hover:border-primary/50"
             >
-              해당 옵션 없음
+              옵션 전체 다시 선택
             </button>
             <button
               type="button"
@@ -657,7 +777,7 @@ export function VehicleInputScreen({ onNext, onBack, initialData, initialStep }:
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
-          <h1 className="flex-1 text-center text-base font-semibold text-foreground">내 차 시세 조회</h1>
+          <h1 className="flex-1 text-center text-[22px] font-bold leading-[1.4] tracking-[-0.01em] text-foreground">내 차 시세 조회</h1>
           <button
             className="p-2 -mr-2 text-foreground transition-colors"
             aria-label="단계 목록"

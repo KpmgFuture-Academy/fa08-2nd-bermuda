@@ -1,9 +1,9 @@
 "use client"
 
 import {
-  ArrowLeft,
   Calendar,
   CarFront,
+  ChevronLeft,
   CircleDollarSign,
   Fuel,
   Gauge,
@@ -29,12 +29,18 @@ interface PriceResultScreenProps {
       trustDiscount: number
       baseQ50: number
     }
-    explanation: {
+    explanation?: {
       summary: string
       detail: string
       tip: string
+      source?: string
+      debug?: {
+        openai_enabled?: boolean
+        reason?: string
+      }
     }
   } | null
+  isExplanationLoading?: boolean
 }
 
 function normalizePrice(value: number) {
@@ -59,7 +65,7 @@ function getVehicleAge(year: string) {
 }
 
 function hasAccidentHistory(vehicleData: any) {
-  return String(vehicleData.accident || "").includes("사고")
+  return String(vehicleData.accident || "").trim() === "사고 이력 있음"
 }
 
 function getAccidentText(vehicleData: any) {
@@ -149,6 +155,7 @@ export function PriceResultScreen({
   onRegister,
   vehicleData,
   prediction,
+  isExplanationLoading = false,
 }: PriceResultScreenProps) {
   const marketData = getMarketData(prediction)
   const accidentText = getAccidentText(vehicleData)
@@ -159,13 +166,14 @@ export function PriceResultScreen({
 
   const explanationSummary =
     prediction?.explanation?.summary ||
-    "입력한 차량 정보를 바탕으로 지금 판매해볼 만한 가격대를 정리했어요."
+    "AI가 가격 형성 이유를 정리하고 있어요."
   const explanationDetail =
     prediction?.explanation?.detail ||
-    "연식, 주행거리, 사고 이력, 옵션 구성을 함께 반영해 현재 시세에 맞는 판매 가격대를 계산했어요."
+    "입력한 차량 조건을 바탕으로 설명을 준비하는 중이에요. 잠시만 기다려 주세요."
   const explanationTip =
     prediction?.explanation?.tip ||
-    "빨리 판매하고 싶다면 빠른 판매가에 가깝게, 여유가 있다면 적정 판매가부터 시작해보세요."
+    "설명이 준비되면 판매 전략 팁도 함께 보여드릴게요."
+  const isOpenAiExplanation = prediction?.explanation?.source === "openai"
 
   const strategies = [
     {
@@ -189,7 +197,7 @@ export function PriceResultScreen({
       icon: CircleDollarSign,
       iconBg: "bg-orange-50",
       iconColor: "text-primary",
-      cardClass: "border-2 border-primary bg-orange-50/40 shadow-[0_6px_20px_rgba(249,115,22,0.12)]",
+      cardClass: "border-2 border-primary/30 bg-card shadow-[0_6px_20px_rgba(15,23,42,0.06)]",
       titleColor: "text-primary",
       recommended: true,
     },
@@ -218,32 +226,22 @@ export function PriceResultScreen({
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      <div className="border-b border-border bg-background px-6 pb-4 pt-6">
-        <div className="mb-4 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80"
-          >
-            <ArrowLeft className="h-5 w-5 text-foreground" />
-          </button>
-          <h1 className="screen-hero text-foreground">추천 판매가격</h1>
-          <div className="w-10" />
+      <header className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur-sm">
+        <div className="flex h-14 items-center px-4">
+           <button
+             type="button"
+             onClick={onBack}
+             className="-ml-2 p-2 text-foreground transition-colors"
+              >
+             <ChevronLeft className="h-6 w-6" />
+           </button>
+           <h1 className="flex-1 text-center text-[22px] font-bold leading-[1.4] tracking-[-0.01em] text-foreground">가격 예측 결과</h1>
+           <div className="w-10" />
         </div>
-
-        <div className="mb-2 flex items-center gap-2 text-[22px] font-semibold text-primary">
-          <span>3</span>
-          <span className="text-muted-foreground">/</span>
-          <span className="text-muted-foreground">3</span>
-        </div>
-
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div className="h-full w-full rounded-full bg-primary" />
-        </div>
-      </div>
+      </header>
 
       <div className="space-y-5 px-6 py-5">
-        <section className="rounded-3xl border border-orange-100 bg-orange-50/70 p-5">
+        <section className="rounded-3xl border border-border bg-card p-5">
           <div className="flex items-start gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white">
               <CarFront className="h-5 w-5 text-primary" />
@@ -252,11 +250,15 @@ export function PriceResultScreen({
               <p className="screen-label text-foreground">
                 {vehicleData.manufacturer} {vehicleData.model} {vehicleData.trim || ""}
               </p>
-              <p className="screen-body mt-1 text-muted-foreground">
-                내 차 조건을 바탕으로 지금 올려볼 만한 가격대를 한눈에 정리했어요.
-              </p>
+              <p className="screen-body mt-1 text-muted-foreground">{explanationSummary}</p>
             </div>
           </div>
+
+          {isOpenAiExplanation && (
+            <div className="mt-4 inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5">
+              <span className="screen-caption font-medium text-primary">AI 설명 반영됨</span>
+            </div>
+          )}
 
           <div className="mt-4 flex flex-wrap gap-2">
             {summaryBadges.map((badge) => (
@@ -273,7 +275,7 @@ export function PriceResultScreen({
         <section>
           <div className="mb-3 flex items-center gap-2">
             <CircleDollarSign className="h-5 w-5 text-primary" />
-            <h2 className="screen-section-title text-foreground">추천 판매가격</h2>
+            <h2 className="screen-section-title text-foreground">추천 판매 가격</h2>
           </div>
 
           <div className="space-y-3">
@@ -288,22 +290,25 @@ export function PriceResultScreen({
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
                       <div className={`flex h-12 w-12 items-center justify-center rounded-full ${strategy.iconBg}`}>
                         <Icon className={`h-5 w-5 ${strategy.iconColor}`} />
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className={`screen-label ${strategy.titleColor}`}>{strategy.title}</p>
                         <p className="screen-caption mt-0.5 text-muted-foreground">{strategy.period}</p>
                         <p className="screen-body mt-2 text-muted-foreground">{strategy.description}</p>
                       </div>
                     </div>
-
                     <div className="shrink-0 text-right">
-                      <div className="leading-none text-3xl font-extrabold text-foreground">
-                        {normalizePrice(strategy.price).toLocaleString()}
-                        <span className="ml-1 text-lg font-semibold">만원</span>
+                      <div className="whitespace-nowrap leading-none text-foreground">
+                        <span className="text-[1.45rem] font-extrabold tracking-tight sm:text-[1.7rem]">
+                          {normalizePrice(strategy.price).toLocaleString()}
+                        </span>
+                        <span className="ml-1 text-[0.8rem] font-semibold text-muted-foreground sm:text-sm">
+                          만원
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -342,15 +347,15 @@ export function PriceResultScreen({
 
             <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="rounded-2xl border border-border bg-background p-3 text-center">
-                <p className="text-2xl font-bold text-foreground">{normalizePrice(marketData.low).toLocaleString()}</p>
+                <p className="text-[1.35rem] font-bold text-foreground sm:text-2xl">{normalizePrice(marketData.low).toLocaleString()}</p>
                 <p className="mt-1 text-xs text-muted-foreground">최저가</p>
               </div>
-              <div className="rounded-2xl border border-primary/20 bg-orange-50 p-3 text-center">
-                <p className="text-2xl font-bold text-primary">{normalizePrice(marketData.avg).toLocaleString()}</p>
+              <div className="rounded-2xl border border-primary/20 bg-background p-3 text-center">
+                <p className="text-[1.35rem] font-bold text-primary sm:text-2xl">{normalizePrice(marketData.avg).toLocaleString()}</p>
                 <p className="mt-1 text-xs text-primary">평균가</p>
               </div>
               <div className="rounded-2xl border border-border bg-background p-3 text-center">
-                <p className="text-2xl font-bold text-foreground">{normalizePrice(marketData.high).toLocaleString()}</p>
+                <p className="text-[1.35rem] font-bold text-foreground sm:text-2xl">{normalizePrice(marketData.high).toLocaleString()}</p>
                 <p className="mt-1 text-xs text-muted-foreground">최고가</p>
               </div>
             </div>
@@ -361,10 +366,23 @@ export function PriceResultScreen({
           <div className="mb-4 flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             <h2 className="screen-section-title text-foreground">가격 해석</h2>
+            {isExplanationLoading && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                AI 설명 생성 중...
+              </span>
+            )}
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-2xl border border-orange-100 bg-orange-50/70 p-4">
+            <div className="rounded-2xl border border-border bg-background p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <p className="screen-caption font-semibold text-foreground">요약</p>
+              </div>
+              <p className="screen-body text-foreground">{explanationSummary}</p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-background p-4">
               <div className="mb-2 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <p className="screen-caption font-semibold text-foreground">한눈에 보기</p>
@@ -455,7 +473,7 @@ export function PriceResultScreen({
                   <p className="mt-2 text-lg font-bold text-foreground">{formatPrice(pricingMeta.baseQ50)}</p>
                 </div>
                 <div className="rounded-2xl border border-border bg-background p-4">
-                  <p className="text-xs text-muted-foreground">예상 마진율</p>
+                  <p className="text-xs text-muted-foreground">직거래 보정 마진율</p>
                   <p className="mt-2 text-lg font-bold text-foreground">
                     {(pricingMeta.marginRate * 100).toFixed(1)}%
                   </p>
