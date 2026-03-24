@@ -1,0 +1,10 @@
+{
+  "started_at": "2026-03-15 23:20:12",
+  "finished_at": "2026-03-17 13:16:25",
+  "total_targets_this_run": 11643,
+  "success_count_total_log": 11643,
+  "error_count_total_log": 0,
+  "new_html_dir": "/Users/chanho0123/hipython/버뮤다_프로젝트_2/encar_domestic_detail_recrawl_11000/html",
+  "success_log_json": "/Users/chanho0123/hipython/버뮤다_프로젝트_2/encar_domestic_detail_recrawl_11000/output/recrawl_success_log.json",
+  "error_log_json": "/Users/chanho0123/hipython/버뮤다_프로젝트_2/encar_domestic_detail_recrawl_11000/output/recrawl_error_log.json"
+}
